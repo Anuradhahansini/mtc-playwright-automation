@@ -5,7 +5,7 @@ import path from 'path';
 // TEST_ENV picks which .env.<name> file to load (defaults to uat). Values
 // already set in the shell (e.g. by CI) take precedence over the file.
 const testEnv = process.env.TEST_ENV || 'uat';
-dotenv.config({ path: path.resolve(__dirname, `.env.${testEnv}`) });
+dotenv.config({ path: path.resolve(__dirname, `.env.${testEnv}`), quiet: true });
 
 export default defineConfig({
   testDir: './tests',
@@ -45,9 +45,19 @@ export default defineConfig({
       // Reuses the session saved by auth.setup.ts instead of logging in per test.
       name: 'chromium-authenticated',
       testDir: './tests/specs',
-      testIgnore: 'login-*.spec.ts',
+      testIgnore: ['login-*.spec.ts', 'api-*.spec.ts'],
       use: { ...devices['Desktop Chrome'], storageState: 'playwright/.auth/user.json' },
       dependencies: ['setup'],
+    },
+    {
+      // Backend API tests (api-*.spec.ts): hit the API directly via
+      // Playwright's `request` fixture, no browser needed. Each test logs
+      // in for its own token rather than reusing UI storageState, since
+      // the API issues its own JWT independent of the browser session.
+      name: 'api',
+      testDir: './tests/specs',
+      testMatch: 'api-*.spec.ts',
+      use: { baseURL: process.env.API_BASE_URL || 'http://192.9.160.206:5071' },
     },
   ],
 });
