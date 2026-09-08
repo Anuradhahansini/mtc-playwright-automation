@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { LoginPage } from '../../pages/user/LoginPage';
-import { VALID_USERNAME, VALID_PASSWORD } from '../login.data';
+import { VALID_USERNAME, VALID_PASSWORD } from '../../data/user';
 
 test.describe('Login flow - edge cases', () => {
   test('safely rejects a SQL injection attempt in the username field', async ({ page }) => {

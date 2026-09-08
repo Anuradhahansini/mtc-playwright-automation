@@ -21,7 +21,10 @@ export class PreRaceRunnerPage extends BasePage {
     this.closeButton = this.runnerDialog.getByRole('button', { name: 'Close', exact: true }).first();
   }
 
-  async goto(meetingId: string, raceId: string) {
+  // Named distinctly from BasePage.goto() rather than overriding it - this
+  // page needs two required params, which TypeScript won't allow as a
+  // compatible override of the base method's single optional one.
+  async gotoRunner(meetingId: string, raceId: string) {
     await super.goto(`/prerace-runner?meetingid=${meetingId}&raceid=${raceId}`);
     await this.heading.waitFor();
   }

@@ -1,5 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { PreRaceRacePage } from '../../pages/prerace/PreRaceRacePage';
+import { MEETINGS } from '../../data/meeting';
+import { RACES } from '../../data/race';
 
 // Runs in the 'chromium-authenticated' project (see playwright.config.ts),
 // reusing the session saved by tests/auth.setup.ts.
@@ -12,24 +14,24 @@ import { PreRaceRacePage } from '../../pages/prerace/PreRaceRacePage';
 // "Show Delete" admin toggle. That's worth a bug report, but not
 // something to lock in as expected behavior in an automated test.
 test.describe('Pre-Race - Race', () => {
-  const MEETING_ID = '487';
-  const EXISTING_RACE_NAME = 'champ de mars new';
+  const meeting = MEETINGS.princessMargaretCu;
+  const existingRace = RACES.champDeMarsNew;
 
   test('loads the races for a meeting', async ({ page }) => {
     const racePage = new PreRaceRacePage(page);
-    await racePage.goto(MEETING_ID);
+    await racePage.goto(meeting.id);
     await expect(racePage.heading).toBeVisible();
     // The race name renders inside an editable grid cell (an <input>), so its
     // text lives in the value attribute rather than as visible text content.
-    await expect(page.locator(`input[value="${EXISTING_RACE_NAME}"]`)).toBeVisible();
+    await expect(page.locator(`input[value="${existingRace.name}"]`)).toBeVisible();
   });
 
   test('shows an error and adds no race when the race number is missing', async ({ page }) => {
     const racePage = new PreRaceRacePage(page);
-    await racePage.goto(MEETING_ID);
+    await racePage.goto(meeting.id);
     // The race name renders inside an editable grid cell (an <input>), so its
     // text lives in the value attribute rather than as visible text content.
-    await expect(page.locator(`input[value="${EXISTING_RACE_NAME}"]`)).toBeVisible();
+    await expect(page.locator(`input[value="${existingRace.name}"]`)).toBeVisible();
     const rowCountBefore = await racePage.raceRows.count();
 
     await racePage.openAddRaceForm();
@@ -42,7 +44,7 @@ test.describe('Pre-Race - Race', () => {
 
   test('returns to the meeting list from "Back To Meeting"', async ({ page }) => {
     const racePage = new PreRaceRacePage(page);
-    await racePage.goto(MEETING_ID);
+    await racePage.goto(meeting.id);
     await racePage.backToMeetingButton.click();
     await expect(page).toHaveURL(/\/prerace$/);
   });

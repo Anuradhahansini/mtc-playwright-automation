@@ -1,7 +1,7 @@
 import { test } from '@playwright/test';
 import { LoginPage, type Role } from '../../pages/user/LoginPage';
 import { DashboardPage } from '../../pages/home/DashboardPage';
-import { VALID_USERNAME, VALID_PASSWORD, ROLE_CREDENTIALS } from '../login.data';
+import { VALID_USERNAME, VALID_PASSWORD, ROLE_CREDENTIALS } from '../../data/user';
 
 test.describe('Login flow - positive cases', () => {
   test('logs in successfully with valid Admin credentials', async ({ page }) => {

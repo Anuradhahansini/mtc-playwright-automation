@@ -1,7 +1,7 @@
 import { test as setup } from '@playwright/test';
 import { LoginPage } from '../pages/user/LoginPage';
 import { DashboardPage } from '../pages/home/DashboardPage';
-import { VALID_USERNAME, VALID_PASSWORD } from './login.data';
+import { VALID_USERNAME, VALID_PASSWORD } from '../data/user';
 
 const authFile = 'playwright/.auth/user.json';
 

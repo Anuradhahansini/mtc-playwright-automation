@@ -1,4 +1,11 @@
 import { defineConfig, devices } from '@playwright/test';
+import dotenv from 'dotenv';
+import path from 'path';
+
+// TEST_ENV picks which .env.<name> file to load (defaults to uat). Values
+// already set in the shell (e.g. by CI) take precedence over the file.
+const testEnv = process.env.TEST_ENV || 'uat';
+dotenv.config({ path: path.resolve(__dirname, `.env.${testEnv}`) });
 
 export default defineConfig({
   testDir: './tests',

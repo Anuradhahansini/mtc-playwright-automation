@@ -1,5 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { PreRaceMeetingPage } from '../../pages/prerace/PreRaceMeetingPage';
+import { MEETINGS } from '../../data/meeting';
+import { COURSE_NAME, MEETING_STAGES, MEETING_STATUSES } from '../../common/constants';
 
 // Runs in the 'chromium-authenticated' project (see playwright.config.ts),
 // reusing the session saved by tests/auth.setup.ts.
@@ -9,9 +11,8 @@ import { PreRaceMeetingPage } from '../../pages/prerace/PreRaceMeetingPage';
 // data behind. Every scenario here either gets rejected by the app (duplicate,
 // missing fields) or is closed without saving.
 test.describe('Pre-Race - Meeting', () => {
-  // A known existing meeting (id 487) to attempt a duplicate against.
-  const EXISTING_MEETING_DATE = '2026-09-01';
-  const EXISTING_MEETING_NAME = 'The Princess Margaret Cu';
+  // A known existing meeting to attempt a duplicate against.
+  const existingMeeting = MEETINGS.princessMargaretCu;
 
   test('rejects creating a meeting with the same date and name as an existing one', async ({ page }) => {
     const meetingPage = new PreRaceMeetingPage(page);
@@ -21,10 +22,10 @@ test.describe('Pre-Race - Meeting', () => {
 
     await meetingPage.openAddMeetingForm();
     await meetingPage.fillMeetingForm({
-      course: '2180 - CHAMP DE MARS',
-      date: EXISTING_MEETING_DATE,
+      course: COURSE_NAME,
+      date: existingMeeting.dateIso,
       type: 'Race',
-      meetingName: EXISTING_MEETING_NAME,
+      meetingName: existingMeeting.name,
     });
     await meetingPage.save();
 
@@ -53,7 +54,7 @@ test.describe('Pre-Race - Meeting', () => {
     await meetingPage.openAddMeetingForm();
 
     const stages = await meetingPage.getDropdownOptionTexts(meetingPage.stageTrigger);
-    expect(stages).toEqual(['Nominations', 'Weights', 'Acceptances', 'Results', 'Abandoned', 'Suspended']);
+    expect(stages).toEqual([...MEETING_STAGES]);
 
     await meetingPage.closeAddMeetingForm();
   });
@@ -64,7 +65,7 @@ test.describe('Pre-Race - Meeting', () => {
     await meetingPage.openAddMeetingForm();
 
     const statuses = await meetingPage.getDropdownOptionTexts(meetingPage.statusTrigger);
-    expect(statuses).toEqual(['DRAFT', 'PROVISIONAL', 'FINAL']);
+    expect(statuses).toEqual([...MEETING_STATUSES]);
 
     await meetingPage.closeAddMeetingForm();
   });
@@ -86,7 +87,7 @@ test.describe('Pre-Race - Meeting', () => {
     await meetingPage.openAddMeetingForm();
 
     const courses = await meetingPage.getDropdownOptionTexts(meetingPage.courseTrigger);
-    expect(courses).toEqual(['2180 - CHAMP DE MARS']);
+    expect(courses).toEqual([COURSE_NAME]);
 
     await meetingPage.closeAddMeetingForm();
   });

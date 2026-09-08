@@ -86,4 +86,58 @@ export class PreRaceMeetingPage extends BasePage {
   async save() {
     await this.saveButton.click();
   }
+
+  // --- Inline-edit grid fields (Meeting Name column of the list, not the
+  // Add Meeting dialog). Each editable cell is an <input> plus a lock/unlock
+  // icon button right after it: locked (readonly) by default, click to
+  // unlock, edit, then Enter *or* clicking away both save immediately to
+  // the server (no confirmation), and Escape cancels without saving. ---
+
+  gridMeetingNameInputForRow(row: Locator): Locator {
+    return row.locator('input[data-field-name="RACEMeetingName"]');
+  }
+
+  /**
+   * Targets a meeting's grid input by its actual meeting ID rather than row
+   * position - the list can reorder (e.g. if a sort key like the name
+   * itself changes), so "row.first()" is not a stable way to re-find the
+   * same meeting across a goto() reload.
+   */
+  gridMeetingNameInputById(meetingId: string): Locator {
+    return this.page.locator(`input[data-field-name="RACEMeetingName"][data-id="${meetingId}"]`);
+  }
+
+  /**
+   * The Date column's grid input. While locked it's a plain text field
+   * showing e.g. "01-Sept-2026". Unlocking it swaps it for a *native*
+   * <input type="date">, but the app pre-fills that native input's value as
+   * "2026-Sept-01" - not valid ISO (YYYY-MM-DD), so the browser rejects it
+   * and the date picker opens blank instead of showing the current date.
+   */
+  gridDateInputById(meetingId: string): Locator {
+    return this.page.locator(`input[data-field-name="date"][data-id="${meetingId}"]`);
+  }
+
+  gridFieldLockButton(input: Locator): Locator {
+    return input.locator('xpath=following-sibling::button[1]');
+  }
+
+  async unlockGridField(input: Locator) {
+    await this.gridFieldLockButton(input).click();
+    await expect(input).not.toHaveAttribute('readonly', '');
+  }
+
+  /**
+   * Commits an inline-grid edit by pressing Enter, then gives the save
+   * request time to actually reach the server before returning. Without
+   * this, navigating away (e.g. a goto() to verify/clean up) immediately
+   * afterward can abort the in-flight save request - confirmed by
+   * reproducing it directly: the same edit succeeds every time when this
+   * settle wait is present, and intermittently fails without it.
+   */
+  async commitGridEdit(input: Locator) {
+    await input.press('Enter');
+    await expect(input).toHaveAttribute('readonly', '');
+    await this.page.waitForTimeout(1000);
+  }
 }
