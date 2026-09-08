@@ -37,6 +37,17 @@ import { MEETINGS } from '../../data/meeting';
 //      the data self-healed once both finished, but one test's own
 //      before/after comparison saw the other test's in-flight value and
 //      failed a real assertion over a false positive.
+//   4. No retries here (configured below), even though the rest of the
+//      suite retries once. A flaky failure mid-edit, retried while the
+//      grid's own row/name-matching state was already disturbed, once
+//      left meeting 487's Name permanently changed AND spawned an entirely
+//      separate duplicate meeting (a new ID, matching the *intended*
+//      revert name) - the inline-edit save appears to fall back to
+//      creating a new record when it can't match the edited row by its
+//      current field values. Both had to be found and fixed by hand via
+//      the API's SaveMeeting/DeleteMeeting endpoints. Failing once and
+//      stopping is safer than retrying into an already-disturbed state.
+test.describe.configure({ retries: 0 });
 test.describe.serial('Pre-Race - Meeting inline edit', () => {
   const meeting = MEETINGS.princessMargaretCu;
   const MEETING_ID = meeting.id;
