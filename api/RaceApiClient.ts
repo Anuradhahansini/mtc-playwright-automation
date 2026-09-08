@@ -22,6 +22,10 @@ export class RaceApiClient {
     return this.request.post(path, { headers: this.headers, data });
   }
 
+  put(path: string, data?: unknown): Promise<APIResponse> {
+    return this.request.put(path, { headers: this.headers, data });
+  }
+
   delete(path: string, params?: Record<string, string | number>): Promise<APIResponse> {
     const stringParams = params
       ? Object.fromEntries(Object.entries(params).map(([k, v]) => [k, String(v)]))
