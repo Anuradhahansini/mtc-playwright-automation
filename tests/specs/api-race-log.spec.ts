@@ -26,15 +26,15 @@ test.describe('API - Race Log', () => {
 
   test('BUG: GET /RaceLog/GetUsers returns a raw 500 instead of user data', async ({ api }) => {
     // This is the endpoint the Race User Logs page (Admin) presumably calls;
-    // it errors server-side with an EF Core SQL/DTO mismatch, exposing an
-    // unhandled .NET exception straight to the response body instead of a
-    // clean error. Matches what the Race User Logs page shows in the UI
-    // (always "No results found") - the backend simply can't serve this data.
+    // it errors server-side with an EF Core SQL/DTO mismatch (an
+    // InvalidOperationException over a missing 'DisplayName' column,
+    // confirmed against http://192.9.160.206:5071). Matches what the Race
+    // User Logs page shows in the UI (always "No results found") - the
+    // backend simply can't serve this data. Some deployments (e.g. the
+    // mtcapi.uat.racingandsports.com environment) suppress the exception
+    // text in the response body - only the 500 itself is asserted here so
+    // this test isn't tied to one environment's error-detail verbosity.
     const res = await api.get('/api/RaceLog/GetUsers');
-
     expect(res.status()).toBe(500);
-    const text = await res.text();
-    expect(text).toContain('InvalidOperationException');
-    expect(text).toContain("required column 'DisplayName'");
   });
 });

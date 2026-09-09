@@ -9,7 +9,13 @@ dotenv.config({ path: path.resolve(__dirname, `.env.${testEnv}`), quiet: true })
 
 export default defineConfig({
   testDir: './tests',
-  timeout: 45000,
+  // NOTE: timeout/actionTimeout/navigationTimeout below are raised from
+  // their original 45000/15000/30000 to give mtc-race.uat.racingandsports.com
+  // headroom - its JS bundle is unusually large and was measured downloading
+  // at ~79 KB/s (3+ minutes on a cold cache; fast once Chromium's disk
+  // cache is warm). See the Stewards' Report's performance finding. Lower
+  // these back down once that's fixed on a fast environment.
+  timeout: 90000,
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 1,
@@ -23,8 +29,8 @@ export default defineConfig({
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
     video: 'off',
-    actionTimeout: 15000,
-    navigationTimeout: 30000,
+    actionTimeout: 30000,
+    navigationTimeout: 90000,
   },
   projects: [
     {
